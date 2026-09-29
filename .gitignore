@@ -1,0 +1,20 @@
+venv/
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+
+# Large/raw data (keep static data and sqlite db for prototyping)
+data/raw/
+data/processed/
+data/sample/
+data/simulated/
+
+# Build outputs
+frontend/dist/
+frontend/build/
+
+# OS files
+.DS_Store
+Thumbs.db

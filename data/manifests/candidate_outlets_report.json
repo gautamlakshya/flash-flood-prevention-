@@ -1,0 +1,69 @@
+{
+    "original_target": [
+        88.6475,
+        27.6033
+    ],
+    "search_radius_deg": 0.03,
+    "candidates": [
+        {
+            "id": 1,
+            "lon": 88.65319444444445,
+            "lat": 27.574027777777776,
+            "distance_deg": 0.02982096060421862,
+            "accumulation_cells": 3304701.0,
+            "elevation_m": 1462.00002,
+            "catchment_area_km2": 2974.2309,
+            "mean_elevation_m": 4765.406922913023,
+            "mean_slope_deg": 25.586957931518555,
+            "touches_boundary": false
+        },
+        {
+            "id": 2,
+            "lon": 88.65569444444445,
+            "lat": 27.57847222222222,
+            "distance_deg": 0.026145123238112817,
+            "accumulation_cells": 3302722.0,
+            "elevation_m": 1462.00034,
+            "catchment_area_km2": 2972.4498,
+            "mean_elevation_m": 4767.086857308441,
+            "mean_slope_deg": 25.580841064453125,
+            "touches_boundary": false
+        },
+        {
+            "id": 3,
+            "lon": 88.65652777777778,
+            "lat": 27.58347222222222,
+            "distance_deg": 0.021786269602899037,
+            "accumulation_cells": 3299652.0,
+            "elevation_m": 1480.0,
+            "catchment_area_km2": 2969.6868,
+            "mean_elevation_m": 4769.521389988826,
+            "mean_slope_deg": 25.573396682739258,
+            "touches_boundary": false
+        },
+        {
+            "id": 4,
+            "lon": 88.65541666666667,
+            "lat": 27.588472222222222,
+            "distance_deg": 0.01680882520994271,
+            "accumulation_cells": 3298050.0,
+            "elevation_m": 1506.00005,
+            "catchment_area_km2": 2968.245,
+            "mean_elevation_m": 4770.849225607765,
+            "mean_slope_deg": 25.57124137878418,
+            "touches_boundary": false
+        },
+        {
+            "id": 5,
+            "lon": 88.65625,
+            "lat": 27.59347222222222,
+            "distance_deg": 0.013158560561456822,
+            "accumulation_cells": 3287317.0,
+            "elevation_m": 1515.00005,
+            "catchment_area_km2": 2958.5852999999997,
+            "mean_elevation_m": 4777.571869552209,
+            "mean_slope_deg": 25.524829864501953,
+            "touches_boundary": false
+        }
+    ]
+}

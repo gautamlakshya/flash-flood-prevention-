@@ -1,0 +1,47 @@
+{
+    "files_used": [
+        "data/raw/dem/srtm\\N27E088.hgt",
+        "data/raw/dem/srtm\\N28E088.hgt"
+    ],
+    "mosaic": {
+        "bounds": [
+            87.99986111111112,
+            29.000138888888888,
+            89.0001388888889,
+            26.99986111111111
+        ],
+        "width": 3601,
+        "height": 7201
+    },
+    "original_target": [
+        88.6475,
+        27.6033
+    ],
+    "snapped_outlet": [
+        88.64847222222222,
+        27.603194444444444
+    ],
+    "snapped_distance_deg": 0.000977935593333375,
+    "snapped_accumulation": 912710.0,
+    "boundary_touch": false,
+    "catchment": {
+        "area_km2": 821.439,
+        "mean_elevation": 4546.1254126846425,
+        "mean_slope": 27.55307960510254
+    },
+    "stream_thresholds": {
+        "1000": {
+            "num_segments": 13256,
+            "total_length": 15866190.350437768
+        },
+        "5000": {
+            "num_segments": 2682,
+            "total_length": 7556417.589293524
+        },
+        "10000": {
+            "num_segments": 1413,
+            "total_length": 5403308.522340569
+        }
+    },
+    "selected_threshold": 10000
+}

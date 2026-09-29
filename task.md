@@ -1,0 +1,13 @@
+- [ ] Update Database Schema (`backend/app/models/database.py`)
+- [ ] Create Base Provider (`backend/app/ingestion/base.py`)
+- [ ] Implement DEM Providers (`backend/app/ingestion/dem/`)
+- [ ] Implement Landslide Providers (`backend/app/ingestion/landslides/`)
+- [ ] Implement IMD Providers (`backend/app/ingestion/imd/`)
+- [ ] Implement Sentinel-1 Providers (`backend/app/ingestion/sentinel1/`)
+- [ ] Implement Hydrology Providers (`backend/app/ingestion/hydrology/`)
+- [ ] Create Dataset & Graph Builders (`backend/app/data_pipeline/`)
+- [ ] Update ST-GNN Training logic (`backend/app/models/train.py`)
+- [ ] Create `data_sources` API Route (`backend/app/api/routes/data_sources.py`)
+- [ ] Refactor `simulation.py` to support REAL/SIMULATION dual mode
+- [ ] Update Frontend `App.tsx` and `DataSources.tsx` to handle modes
+- [ ] Verification and Testing

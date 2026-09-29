@@ -1,0 +1,35 @@
+study_area:
+  id: "CHUNGTHANG_TEESTA_01"
+  name: "Chungthang"
+  river: "Teesta"
+  district: "Mangan District"
+  state: "Sikkim"
+  country: "India"
+  crs: "EPSG:4326"
+
+target:
+  name: "CWC Chungthang Station"
+  type: "hydrological_station"
+  cwc_reference_coordinate: [88.6475, 27.5833]
+  dem_snapped_outlet_coordinate: [88.6551, 27.5851]
+  cwc_catchment_area_km2: 2792.25
+  dem_catchment_area_km2: 2969.41
+  target_node_id: "NOT_CONFIGURED"
+  target_node_status: "NOT_CONFIGURED"
+  coordinate_source: "SRTM 30m DEM-derived catchment associated with the CWC Chungthang station. The ~2,969 km2 DEM-derived catchment is used operationally, while 2792.25 is retained as an external reference."
+
+model_domain:
+  type: "upstream_contributing_catchment"
+
+impact_domain:
+  type: "local_downstream_corridor"
+
+data_sources:
+  dem_source: "CartoDEM 30m"
+  rainfall_source: "IMD AWS"
+  hydrology_source: "CWC Historical"
+  cross_sections_source: "NOT_CONFIGURED"
+  lulc_source: "NOT_CONFIGURED"
+  soil_source: "NOT_CONFIGURED"
+  soil_moisture_source: "Sentinel-1 Backscatter Derived (Optional)"
+  landslide_source: "GSI Bhukosh"

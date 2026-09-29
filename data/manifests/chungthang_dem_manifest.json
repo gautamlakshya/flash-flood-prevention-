@@ -1,0 +1,41 @@
+{
+  "project": "Flash Flood Early Warning System",
+  "study_area": "Chungthang",
+  "data_type": "DEM",
+  "source": "NASA/USGS SRTMGL1 (via AWS Open Data Registry - elevation-tiles-prod/skadi)",
+  "resolution": "1 arc-second (~30m)",
+  "acquisition_timestamp": "2026-09-28T22:08:00+05:30",
+  "files": [
+    {
+      "filename": "N27E088.hgt",
+      "tile_id": "N27E088",
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/skadi/N27/N27E088.hgt.gz",
+      "crs": "EPSG:4326",
+      "bounds": {"left": 87.99986111111112, "bottom": 26.99986111111111, "right": 89.0001388888889, "top": 28.000138888888888},
+      "resolution": [0.0002777777777777778, 0.0002777777777777778],
+      "dimensions": [3601, 3601],
+      "nodata": -32768.0,
+      "min_elevation": 182,
+      "max_elevation": 8376,
+      "checksum": "001fb43eb3f6953e29f2a403d5e5e2e0"
+    },
+    {
+      "filename": "N28E088.hgt",
+      "tile_id": "N28E088",
+      "url": "https://s3.amazonaws.com/elevation-tiles-prod/skadi/N28/N28E088.hgt.gz",
+      "crs": "EPSG:4326",
+      "bounds": {"left": 87.99986111111112, "bottom": 27.99986111111111, "right": 89.0001388888889, "top": 29.000138888888888},
+      "resolution": [0.0002777777777777778, 0.0002777777777777778],
+      "dimensions": [3601, 3601],
+      "nodata": -32768.0,
+      "min_elevation": 4002,
+      "max_elevation": 6783,
+      "checksum": "7bab18980598089ae4a7a2bbdac7df30"
+    }
+  ],
+  "validation": {
+    "chungthang_covered": true,
+    "catchment_coverage_sufficient": true,
+    "chungthang_coordinate": [88.6475, 27.6033]
+  }
+}
