@@ -106,7 +106,10 @@ export const useAppStore = create<AppState>((set, get) => ({
             
             if (statusData.status === 'COMPLETED') {
               const resultsRes = await fetch(`${(import.meta as any).env.VITE_API_URL || 'http://localhost:8000'}/api/v1/simulation/${runId}/results`);
-              if (!resultsRes.ok) throw new Error('Failed to get results');
+              if (!resultsRes.ok) {
+                const errData = await resultsRes.json().catch(() => ({}));
+                throw new Error(errData.detail || 'Failed to get results');
+              }
               const resultsData = await resultsRes.json();
               set({ 
                 isSimulating: false,

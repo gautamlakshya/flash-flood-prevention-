@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from datetime import datetime
 import numpy as np
-import torch
+
 
 import rasterio.features
 from rasterio.transform import from_origin
@@ -109,7 +109,11 @@ async def get_simulation_results(run_id: str, db: Session = Depends(get_db)):
     from ...hazards.classifier import classify_hazard
     from ...hydraulics.manning import calculate_water_stage
     from ...alerts.cap import generate_cap_xml
-    from ml.models.stgnn import STGNN
+    try:
+        import torch
+        from ml.models.stgnn import STGNN
+    except ImportError:
+        raise HTTPException(status_code=503, detail="ST-GNN inference unavailable: PyTorch is not installed")
     from ...geospatial.dem import process_dem
     import os
     
