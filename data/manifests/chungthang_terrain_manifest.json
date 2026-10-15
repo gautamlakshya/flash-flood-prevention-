@@ -15,17 +15,17 @@
     },
     "original_target": [
         88.6475,
-        27.6033
+        27.5833
     ],
     "snapped_outlet": [
-        88.64847222222222,
-        27.603194444444444
+        88.6551,
+        27.5851
     ],
-    "snapped_distance_deg": 0.000977935593333375,
-    "snapped_accumulation": 912710.0,
+    "snapped_distance_deg": 0.00784474,
+    "snapped_accumulation": 3299343.0,
     "boundary_touch": false,
     "catchment": {
-        "area_km2": 821.439,
+        "area_km2": 2969.41,
         "mean_elevation": 4546.1254126846425,
         "mean_slope": 27.55307960510254
     },

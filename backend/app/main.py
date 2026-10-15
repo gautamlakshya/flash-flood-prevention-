@@ -1,5 +1,12 @@
-from fastapi import FastAPI
+import sys
 import os
+
+# Ensure project root is in Python path for root modules (ml, config, etc.)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .api.routes import health, rainfall, terrain, runoff, prediction, hazards, inundation, alerts, observations
 
@@ -19,6 +26,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Health endpoint at root and /health
+@app.get("/health", tags=["Health"])
+async def root_health():
+    return {"status": "ok", "service": "flashflood-backend", "version": "1.0.0"}
 
 # Include Routers
 app.include_router(health.router, tags=["Health"])

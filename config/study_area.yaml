@@ -10,6 +10,7 @@ study_area:
 target:
   name: "CWC Chungthang Station"
   type: "hydrological_station"
+  target_coordinates: [88.6475, 27.6033]
   cwc_reference_coordinate: [88.6475, 27.5833]
   dem_snapped_outlet_coordinate: [88.6551, 27.5851]
   cwc_catchment_area_km2: 2792.25

@@ -11,35 +11,49 @@ class LocalCartoDEMProvider(DEMProvider):
     """
     Ingests official CartoDEM GeoTIFFs downloaded from Bhuvan.
     """
-    def __init__(self, file_path: str = "data/raw/dem/teesta_cartodem.tif"):
+    def __init__(self, file_path: str = None):
         super().__init__()
         self.source_name = "ISRO CartoDEM"
         self.source_type = "DEM"
-        self.file_path = file_path
+
+        candidates = [
+            file_path,
+            "data/raw/dem/cdnh45w.tif",
+            "../data/raw/dem/cdnh45w.tif",
+            "data/raw/dem/teesta_cartodem.tif",
+            "../data/raw/dem/teesta_cartodem.tif"
+        ]
+        self.file_path = None
+        for p in candidates:
+            if p and os.path.exists(p):
+                self.file_path = p
+                break
+        if self.file_path is None:
+            self.file_path = file_path or "data/raw/dem/cdnh45w.tif"
 
     def fetch_data(self, **kwargs) -> Optional[Dict[str, Any]]:
-        if not os.path.exists(self.file_path):
+        if not self.file_path or not os.path.exists(self.file_path):
             self.error_message = f"DEM file not found: {self.file_path}"
             return None
-        
+
         try:
             with rasterio.open(self.file_path) as src:
                 elevation = src.read(1)
                 meta = src.meta
                 bounds = src.bounds
                 nodata = src.nodata
-                
+
                 # Check for nodata fraction
                 nodata_mask = (elevation == nodata)
                 nodata_fraction = nodata_mask.sum() / elevation.size if nodata is not None else 0.0
-                
+
                 # Calculate stats
                 valid_data = elevation[~nodata_mask] if nodata is not None else elevation
                 min_elev = float(valid_data.min()) if valid_data.size > 0 else 0.0
                 max_elev = float(valid_data.max()) if valid_data.size > 0 else 0.0
 
                 self.last_updated = datetime.utcnow()
-                
+
                 return {
                     "elevation": elevation,
                     "meta": meta,

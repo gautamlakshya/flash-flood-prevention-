@@ -8,7 +8,15 @@ class StaticDataAudit:
     """
     
     def __init__(self, base_path: str = "data/raw/static"):
+        candidates = [
+            base_path,
+            "../" + base_path.lstrip("/\\") if not base_path.startswith("..") else base_path
+        ]
         self.base_path = base_path
+        for c in candidates:
+            if os.path.exists(c):
+                self.base_path = c
+                break
         
     def check_lulc(self) -> str:
         if os.path.exists(os.path.join(self.base_path, "lulc.tif")):

@@ -83,18 +83,31 @@ def get_simulation_spatial_transform():
     import os
     from rasterio.transform import from_origin
     
-    # Authoritative study-area configuration
-    config_path = "config/study_area.yaml"
+    # Candidate paths for study_area.yaml
+    candidate_paths = [
+        "config/study_area.yaml",
+        "../config/study_area.yaml",
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "config", "study_area.yaml")
+    ]
     
-    # Fallback to 0,0 if not found, but it should be found
-    lon, lat = 0.0, 0.0
-    if os.path.exists(config_path):
-        with open(config_path, "r") as f:
-            study_config = yaml.safe_load(f)
-            target = study_config.get("target", {})
-            coords = target.get("target_coordinates", [0.0, 0.0])
-            if len(coords) == 2:
-                lon, lat = coords[0], coords[1]
+    # Fallback to Chungthang station coordinates if not found
+    lon, lat = 88.6475, 27.6033
+    for path in candidate_paths:
+        if os.path.exists(path):
+            try:
+                with open(path, "r") as f:
+                    study_config = yaml.safe_load(f) or {}
+                    target = study_config.get("target", {})
+                    coords = (
+                        target.get("target_coordinates")
+                        or target.get("cwc_reference_coordinate")
+                        or target.get("dem_snapped_outlet_coordinate")
+                    )
+                    if coords and len(coords) == 2 and coords != [0.0, 0.0]:
+                        lon, lat = float(coords[0]), float(coords[1])
+                break
+            except Exception:
+                pass
     
     # We want the simulated grid to be roughly centered on the target coords.
     # The grid is 50x50 with cell_size=30m, which is small.

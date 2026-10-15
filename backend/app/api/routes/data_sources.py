@@ -11,6 +11,7 @@ from ...ingestion.static_data import StaticDataAudit
 router = APIRouter()
 
 @router.get("/")
+@router.get("")
 async def get_data_sources_status() -> List[Dict[str, Any]]:
     """
     Returns the real-time status of all data ingestion providers.
