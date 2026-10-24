@@ -3,12 +3,43 @@ services:
     name: flashflood-backend
     env: python
     buildCommand: "cd backend && pip install -r requirements.txt"
-    startCommand: "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    startCommand: "python migrate_db.py && cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    disk:
+      name: flashflood-data
+      mountPath: /data
+      sizeGB: 1
     envVars:
       - key: CORS_ORIGINS
-        value: "*"
+        value: "https://flashflood-frontend.onrender.com"
       - key: USE_SQLITE
         value: "true"
+      - key: SQLITE_DB_PATH
+        value: "/data/flashflood.db"
+      - key: OPEN_METEO_API_URL
+        value: "https://api.open-meteo.com/v1/forecast"
+      - key: OPEN_METEO_LATITUDE
+        value: "27.6033"
+      - key: OPEN_METEO_LONGITUDE
+        value: "88.6475"
+      - key: RAINFALL_STALE_THRESHOLD_MINUTES
+        value: "180"
+      - key: ALERT_NOTIFICATIONS_ENABLED
+        value: "true"
+      - key: WEB_PUSH_ENABLED
+        value: "true"
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_CLAIM_EMAIL
+        value: "mailto:alerts@chungthang-flood.internal"
+      - key: SMS_ENABLED
+        value: "false"
+      - key: ALERT_ADMIN_KEY
+        sync: false
+      - key: INGESTION_CRON_SECRET
+        sync: false
+
 
   - type: web
     name: flashflood-frontend

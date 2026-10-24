@@ -17,17 +17,45 @@ app = FastAPI(
 )
 
 # CORS configuration
-origins = os.environ.get("CORS_ORIGINS", "*").split(",")
+from .config import settings
+
+raw_cors = (settings.CORS_ORIGINS or os.environ.get("CORS_ORIGINS", "")).strip()
+if raw_cors and raw_cors != "*":
+    origins = [o.strip() for o in raw_cors.split(",") if o.strip()]
+elif raw_cors == "*":
+    origins = ["*"]
+else:
+    # Safe defaults for local development
+    origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
 # Health endpoint at root and /health
+@app.on_event("startup")
+async def startup_event():
+    try:
+        from migrate_db import migrate_db
+        migrate_db()
+    except ImportError:
+        try:
+            from .models.database import Base, engine
+            Base.metadata.create_all(bind=engine)
+        except Exception as e:
+            print(f"Warning: Startup schema creation encountered error: {e}")
+    except Exception as e:
+        print(f"Warning: Startup migration encountered error: {e}")
+
 @app.get("/health", tags=["Health"])
 async def root_health():
     return {"status": "ok", "service": "flashflood-backend", "version": "1.0.0"}

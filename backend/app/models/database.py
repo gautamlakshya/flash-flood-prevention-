@@ -1,13 +1,35 @@
 import os
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, ForeignKey, JSON
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, ForeignKey, JSON, UniqueConstraint
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from datetime import datetime
 from ..config import settings
 
-# Use SQLite for local execution without Docker if postgres URL fails
-db_url = settings.DATABASE_URL
-if db_url.startswith("postgresql") and os.environ.get("USE_SQLITE", "true") == "true":
-    db_url = "sqlite:///./flashflood.db"
+def get_sqlite_db_path() -> str:
+    """
+    Returns the resolved filesystem path for the SQLite database.
+    Checks SQLITE_DB_PATH env var, persistent /data directory, or project root.
+    """
+    custom_path = os.environ.get("SQLITE_DB_PATH", "").strip()
+    if custom_path:
+        return custom_path
+    elif os.path.isdir("/data") and os.access("/data", os.W_OK):
+        return "/data/flashflood.db"
+    else:
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+        return os.path.join(project_root, "flashflood.db")
+
+def resolve_database_url() -> str:
+    """
+    Resolves the active database connection URL.
+    Supports Render Managed PostgreSQL or persistent SQLite.
+    """
+    use_sqlite = os.environ.get("USE_SQLITE", "true").lower() in ("true", "1", "yes")
+    if not use_sqlite and settings.DATABASE_URL and not settings.DATABASE_URL.startswith("sqlite"):
+        return settings.DATABASE_URL
+    path = get_sqlite_db_path()
+    return f"sqlite:///{path}"
+
+db_url = resolve_database_url()
 
 # create_engine args for sqlite
 connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}
@@ -45,7 +67,7 @@ class RiverNode(Base):
     bankfull_capacity = Column(Float)
     manning_n = Column(Float)
     cross_section_area = Column(Float)
-    
+
     watershed = relationship("Watershed", back_populates="nodes")
     # For simplicity, we just store features
 
@@ -174,6 +196,94 @@ class FieldObservation(Base):
     rainfall_mm = Column(Float)
     notes = Column(String)
     synced = Column(Boolean, default=False)
+
+class RainfallRecord(Base):
+    __tablename__ = "rainfall_records"
+    __table_args__ = (
+        UniqueConstraint("source", "latitude", "longitude", "valid_time", name="uix_rainfall_record"),
+    )
+    id = Column(Integer, primary_key=True, index=True)
+    source = Column(String, index=True)  # e.g. "OPEN_METEO"
+    data_type = Column(String)           # e.g. "FORECAST", "OBSERVATION"
+    latitude = Column(Float)
+    longitude = Column(Float)
+    valid_time = Column(DateTime, index=True)
+    retrieval_time = Column(DateTime, default=datetime.utcnow)
+    precipitation_mm = Column(Float)
+    units = Column(String, default="mm")
+    raw_metadata = Column(JSON, nullable=True)
+
+class ProviderHealth(Base):
+    __tablename__ = "provider_health"
+    id = Column(Integer, primary_key=True, index=True)
+    provider_name = Column(String, unique=True, index=True)
+    status = Column(String)  # CONNECTED, STALE, UNAVAILABLE, ERROR, NOT CONFIGURED
+    last_attempt_time = Column(DateTime, nullable=True)
+    last_success_time = Column(DateTime, nullable=True)
+    latest_data_time = Column(DateTime, nullable=True)
+    consecutive_failures = Column(Integer, default=0)
+    error_message = Column(String, nullable=True)
+    metadata_json = Column(JSON, nullable=True)
+
+class LiveAlertEvent(Base):
+    __tablename__ = "live_alerts"
+    id = Column(String, primary_key=True, index=True)
+    alert_type = Column(String, default="LIVE", index=True)  # LIVE, SIMULATION, or TEST
+    severity = Column(String, index=True)                   # NORMAL, WATCH, WARNING, CRITICAL, STALE, UNKNOWN
+    zone = Column(String, default="Chungthang Basin (Teesta River)")
+    headline = Column(String)
+    description = Column(String)
+    trigger_rule = Column(String)
+    trigger_inputs = Column(JSON)
+    threshold_config = Column(JSON)
+    predicted_discharge = Column(Float, nullable=True)
+    threshold_value = Column(Float, nullable=True)
+    threshold_name = Column(String, nullable=True)
+    data_freshness_minutes = Column(Float, nullable=True)
+    status = Column(String, default="ACTIVE", index=True)   # ACTIVE, ACKNOWLEDGED, RESOLVED, EXPIRED
+    acknowledged_at = Column(DateTime, nullable=True)
+    acknowledged_by = Column(String, nullable=True)
+    acknowledgement_notes = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    resolved_at = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, default=True)
+    cap_xml = Column(String, nullable=True)
+
+    deliveries = relationship("NotificationDelivery", back_populates="alert")
+
+class PushSubscription(Base):
+    __tablename__ = "push_subscriptions"
+    id = Column(Integer, primary_key=True, index=True)
+    endpoint = Column(String, unique=True, index=True)
+    p256dh = Column(String)
+    auth = Column(String)
+    user_agent = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    is_active = Column(Boolean, default=True)
+    last_delivery_at = Column(DateTime, nullable=True)
+
+class NotificationDelivery(Base):
+    __tablename__ = "notification_deliveries"
+    id = Column(Integer, primary_key=True, index=True)
+    alert_id = Column(String, ForeignKey("live_alerts.id"), nullable=True)
+    channel = Column(String, default="WEB_PUSH")  # WEB_PUSH, SMS
+    recipient_id = Column(String)
+    status = Column(String)  # SENT, FAILED, EXPIRED, SKIPPED, NOT_CONFIGURED
+    attempt_time = Column(DateTime, default=datetime.utcnow)
+    idempotency_key = Column(String, index=True, nullable=True)
+    error_message = Column(String, nullable=True)
+    response_json = Column(JSON, nullable=True)
+
+    alert = relationship("LiveAlertEvent", back_populates="deliveries")
+
+class RecipientDevice(Base):
+    __tablename__ = "recipient_devices"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    channel = Column(String, default="SMS")
+    identifier = Column(String, index=True)
+    is_active = Column(Boolean, default=True)
+    registered_at = Column(DateTime, default=datetime.utcnow)
 
 # Create tables
 Base.metadata.create_all(bind=engine)

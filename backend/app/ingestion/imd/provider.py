@@ -75,5 +75,24 @@ class IMDAWSProvider(IMDProvider):
                 return ProviderStatus.CONNECTED
             elif self.error_message:
                 return ProviderStatus.ERROR
-            return ProviderStatus.CONNECTED
-        return ProviderStatus.NOT_CONFIGURED
+            return ProviderStatus.CONFIGURED
+        return ProviderStatus.RESTRICTED
+
+    def get_metadata(self) -> Dict[str, Any]:
+        meta = super().get_metadata()
+        meta["data_category"] = "OBSERVATION"
+        meta["is_forecast"] = False
+        meta["is_observation"] = True
+        meta["access_blocker"] = (
+            "IMD Data Service Portal requires institutional credentials (API key) and static public IP "
+            "whitelisting under the National Data Sharing and Accessibility Policy (NDSAP). "
+            "Direct unauthenticated programmatic machine-to-machine requests are restricted."
+        ) if not (self.api_url and self.api_key) else None
+        meta["endpoint"] = self.api_url or "IMD AWS National Data Portal (Restricted)"
+        meta["notes"] = (
+            "Operational adapter interface for IMD AWS precipitation observations. "
+            "Requires institutional credentials and NDSAP static IP whitelisting."
+            if not (self.api_url and self.api_key)
+            else "Operational connection configured."
+        )
+        return meta

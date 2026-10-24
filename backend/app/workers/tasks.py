@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from ..models.database import SessionLocal, SimulationRun
+from ..models.database import SessionLocal, SimulationRun, LiveAlertEvent
 from ..ingestion.simulator import SyntheticDataGenerator
 from ..geospatial.dem import process_dem
 from ..hydrology.runoff import process_runoff_timeseries
@@ -116,16 +116,37 @@ async def run_simulation_pipeline(run_id: str, scenario: str, seed: int):
             cap_xml = generate_cap_xml(
                 identifier=run_id,
                 sender="FFEWS-DEMO",
-                event="Flash Flood Warning",
+                event="Flash Flood Warning (SIMULATION)",
                 urgency="Immediate",
                 severity="Extreme",
                 certainty="Observed",
-                headline="Flash Flood Warning for Chungthang Basin",
-                description=f"Predicted peak discharge {predicted_peak_discharge:.1f} m3/s exceeds critical capacity {q_crit:.1f} m3/s.",
+                headline="Flash Flood Warning for Chungthang Basin (SIMULATION)",
+                description=f"Simulated peak discharge {predicted_peak_discharge:.1f} m3/s exceeds critical capacity {q_crit:.1f} m3/s.",
                 instruction="Evacuate immediately to higher ground.",
                 polygon_coordinates="27.60,88.64 27.60,88.65 27.61,88.65 27.61,88.64 27.60,88.64",
-                area_desc="Chungthang Basin"
+                area_desc="Chungthang Basin (Simulation Domain)"
             )
+            sim_alert = LiveAlertEvent(
+                id=run_id,
+                alert_type="SIMULATION",
+                severity="WARNING",
+                zone="Chungthang Basin (Teesta River)",
+                headline="Flash Flood Warning (SIMULATION SCENARIO)",
+                description=f"Simulated peak discharge {predicted_peak_discharge:.1f} m³/s exceeds critical bankfull capacity {q_crit:.1f} m³/s.",
+                trigger_rule=f"Simulated Q {predicted_peak_discharge:.1f} m³/s >= Qcrit {q_crit:.1f} m³/s",
+                trigger_inputs={"scenario": scenario, "seed": seed, "is_simulation": True},
+                threshold_config={"bankfull_capacity_qcrit": q_crit},
+                predicted_discharge=round(predicted_peak_discharge, 1),
+                threshold_value=q_crit,
+                threshold_name="Bankfull Capacity Qcrit (Prototype)",
+                data_freshness_minutes=0.0,
+                status="ACTIVE",
+                created_at=datetime.utcnow(),
+                is_active=True,
+                cap_xml=cap_xml
+            )
+            db.merge(sim_alert)
+            db.commit()
         else:
             cap_xml = ""
 

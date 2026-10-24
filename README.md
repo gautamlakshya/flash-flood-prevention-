@@ -45,10 +45,24 @@ For demonstration purposes, if real APIs are unavailable:
 - This triggers a `CLOUDBURST` scenario generating mock rainfall data.
 - The pipeline processes the rainfall, increases river discharge predictions, triggers a `FLASH FLOOD WARNING`, and updates the inundation map and CAP alerts.
 
+## Operational Telemetry & Mobile Alerts
+
+The prototype includes an end-to-end real rainfall intake and mobile alerting pipeline:
+1. **Real External NWP Provider:** Fetches hourly precipitation forecasts from Open-Meteo for the Chungthang basin (27.6033°N, 88.6475°E).
+2. **Persistent Storage:** Audits historical hourly samples and provider health without duplicate readings.
+3. **Deterministic Evaluator:** Calculates 1h, 3h, 6h, and 24h rolling accumulations, enforces freshness thresholds, and triggers risk states (NORMAL, WATCH, WARNING, CRITICAL).
+4. **Multi-Channel Push Notifications:** Delivers emergency alerts, precautionary advisories, and CAP v1.2 summaries directly to registered desktop and mobile devices via standards-based Web Push (VAPID RFC 8292).
+5. **SMS-Ready Architecture:** Includes an extensible `NotificationChannel` interface prepared for Indian TRAI DLT transactional SMS gateways.
+6. **Automated Scheduler:** Exposes a protected webhook (`POST /api/v1/rainfall/ingest-and-evaluate`) suitable for external schedulers (e.g. cron-job.org).
+
+Detailed setup guides:
+- Web Push & Deployment: [docs/PUSH_AND_SMS_ALERT_SETUP.md](docs/PUSH_AND_SMS_ALERT_SETUP.md)
+- Indian SMS / TRAI DLT Compliance: [docs/SMS_DLT_COMPLIANCE.md](docs/SMS_DLT_COMPLIANCE.md)
+
 ## Repository Structure
-- `backend/`: FastAPI server, Celery workers, ML inference, Hydrology algorithms.
+- `backend/`: FastAPI server, Celery workers, ML inference, Hydrology algorithms, Open-Meteo ingestion, Multi-channel Web Push & SMS alerts.
 - `ml/`: PyTorch models, Training pipeline, ONNX export scripts.
-- `frontend/`: React + Vite PWA Dashboard.
+- `frontend/`: React + Vite PWA Dashboard with real-time telemetry panels, Service Worker push notifications, and operator acknowledgement console.
 
 ## Model Details
 The underlying AI model is a Spatio-Temporal Graph Neural Network (ST-GNN) that learns the river topology using GCN layers and temporal dynamics using GRU. It is constrained during training by a physics loss based on the 1D Saint-Venant mass continuity equation.

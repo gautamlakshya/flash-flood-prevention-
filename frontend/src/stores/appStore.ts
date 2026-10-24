@@ -43,6 +43,10 @@ interface AppState {
   scenario: string;
   setScenario: (scenario: string) => void;
 
+  sidebarCollapsed: boolean;
+  toggleSidebar: () => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+
   dataMode: string;
   setDataMode: (mode: string) => void;
 
@@ -61,6 +65,33 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   scenario: 'Extreme Cloudburst',
   setScenario: (scenario) => set({ scenario }),
+
+  sidebarCollapsed: typeof window !== 'undefined' ? localStorage.getItem('flood_sidebar_collapsed') === 'true' : false,
+  toggleSidebar: () => set((state) => {
+    const next = !state.sidebarCollapsed;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('flood_sidebar_collapsed', String(next));
+    }
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 60);
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 260);
+    return { sidebarCollapsed: next };
+  }),
+  setSidebarCollapsed: (collapsed) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('flood_sidebar_collapsed', String(collapsed));
+    }
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 60);
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 260);
+    set({ sidebarCollapsed: collapsed });
+  },
 
   dataMode: 'SIMULATION',
   setDataMode: (mode) => set({ dataMode: mode }),

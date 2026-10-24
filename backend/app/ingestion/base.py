@@ -5,9 +5,14 @@ from datetime import datetime
 class ProviderStatus:
     CONNECTED = "CONNECTED"
     AVAILABLE_LOCALLY = "AVAILABLE LOCALLY"
+    CONFIGURED = "CONFIGURED"
+    RESTRICTED = "RESTRICTED"
     SIMULATED = "SIMULATED"
     NOT_CONFIGURED = "NOT CONFIGURED"
     ERROR = "ERROR"
+    STALE = "STALE"
+    UNAVAILABLE = "UNAVAILABLE"
+
 
 class DataProvider(ABC):
     def __init__(self):

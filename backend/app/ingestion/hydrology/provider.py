@@ -54,3 +54,22 @@ class LocalCWCHydrologyProvider(HydrologyObservationProvider):
         if os.path.exists(self.file_path):
             return ProviderStatus.AVAILABLE_LOCALLY
         return ProviderStatus.NOT_CONFIGURED
+
+    def get_metadata(self) -> Dict[str, Any]:
+        meta = super().get_metadata()
+        meta["data_category"] = "OBSERVATION"
+        meta["is_forecast"] = False
+        meta["is_observation"] = True
+        meta["access_blocker"] = (
+            "National Water Data Portal / India-WRIS requires institutional credentials for automated "
+            "CWC streamflow and water-level telemetry feeds. Local telemetry file teesta_cwc_discharge.csv "
+            "is not currently populated in data/raw/hydrology/."
+        ) if not os.path.exists(self.file_path) else None
+        meta["endpoint"] = "India-WRIS / NWIC Water Data Portal (Restricted)"
+        meta["notes"] = (
+            "Adapter interface for CWC gauge discharge and stage observations. "
+            "Awaiting local telemetry CSV placement or India-WRIS API authorization."
+            if not os.path.exists(self.file_path)
+            else "Local telemetry CSV loaded."
+        )
+        return meta
